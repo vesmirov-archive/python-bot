@@ -1,0 +1,11 @@
+# environment
+.venv
+venv
+.env
+env
+
+# vscode
+.vscode
+
+# github
+.git
