@@ -4,8 +4,14 @@ venv
 .env
 env
 
+# python
+__pycache__/
+
 # vscode
 .vscode
 
 # github
 .git
+
+# other
+TODO
