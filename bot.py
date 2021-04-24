@@ -1,6 +1,7 @@
 import os
 
 import telebot
+from telebot import types
 import psycopg2
 from dotenv import load_dotenv
 
@@ -12,12 +13,12 @@ START_ANONIMUS = (
     "Sorry, you don't have permissions to use this bot.\n"
     "Contact @vilagov if you sure that you need one."
 )
-HELP = 'Some help text'
+HELP = 'Commands:\n/begin - send and execute python code'
 
 load_dotenv()
 
 TOKEN = os.getenv('TOKEN')
-CHAT = os.getenv('CHAT')
+CHAT = os.getenv('USER_ID')
 
 bot = telebot.TeleBot(TOKEN)
 connect = psycopg2.connect(
@@ -39,7 +40,8 @@ def permission_check(func):
             bot.send_message(
                 CHAT,
                 'User has just called me.\n'
-                f'name: {message.from_user.first_name}'
+                f'first: {message.from_user.first_name}\n'
+                f'last: {message.from_user.last_name}\n'
                 f'username: @{message.from_user.username}\n'
                 f'id: {message.from_user.id}\n'
             )
@@ -54,7 +56,7 @@ def send_welcome(message):
     bot.send_message(user_id, START_AUTHENTICATED.format(name))
 
 
-@bot.message_handler(commangs=['help'])
+@bot.message_handler(commands=['help'])
 @permission_check
 def send_help_text(message):
     bot.send_message(message.from_user.id, HELP)
@@ -70,6 +72,9 @@ def prapare_to_parce(message):
 def parce_python_code(message):
     output = execute_python_code(message.text)
     bot.send_message(message.from_user.id, output)
+
+
+keyboard = types.InlineKeyboardMarkup()
 
 
 bot.polling()
