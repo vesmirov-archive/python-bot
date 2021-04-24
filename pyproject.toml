@@ -8,6 +8,7 @@ authors = ["Evan Vilagov <evan.vilagov@gmail.com>"]
 python = "^3.9"
 pyTelegramBotAPI = "^3.7.7"
 python-dotenv = "^0.17.0"
+psycopg2-binary = "^2.8.6"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.1"
