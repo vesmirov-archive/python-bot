@@ -1,9 +1,8 @@
 import os
 
 import telebot
-from telebot import types
 import psycopg2
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 from service import db
 from service.repl import execute_python_code
@@ -15,23 +14,20 @@ START_ANONIMUS = (
 )
 HELP = 'Commands:\n/begin - send and execute python code'
 
-load_dotenv()
+env = dotenv_values('.env')
 
-TOKEN = os.getenv('TOKEN')
-CHAT = os.getenv('USER_ID')
+TOKEN = env.get('TOKEN')
+CHAT = env.get('USER_ID')
 
 bot = telebot.TeleBot(TOKEN)
-connect = psycopg2.connect(
-    database=os.getenv('DATABASE'),
-    user=os.getenv('POSTGRES_USERNAME'),
-    password=os.getenv('POSTGRES_PASSWORD'),
-    host=os.getenv('POSTGRES_HOST'),
-    port=os.getenv('POSTRGES_PORT')
-)
-cursor = connect.cursor()
+connect, cursor = db.connect_database(env)
 
 
 def permission_check(func):
+    """
+    User permission check decorator.
+    If user id not in database, send 'deny access' message.
+    """
     def inner(message):
         if db.user_has_permissions(message.from_user.id, cursor):
             func(message)
@@ -51,6 +47,7 @@ def permission_check(func):
 @bot.message_handler(commands=['start'])
 @permission_check
 def send_welcome(message):
+    """Say hi to user"""
     user_id = message.from_user.id
     name = message.from_user.first_name
     bot.send_message(user_id, START_AUTHENTICATED.format(name))
@@ -59,22 +56,22 @@ def send_welcome(message):
 @bot.message_handler(commands=['help'])
 @permission_check
 def send_help_text(message):
+    """Help text with command list"""
     bot.send_message(message.from_user.id, HELP)
 
 
 @bot.message_handler(commands=['begin'])
 @permission_check
 def prapare_to_parce(message):
+    """Start pseudo REPL and wait for message with code"""
     message = bot.send_message(message.from_user.id, 'Send me your code.')
     bot.register_next_step_handler(message, parce_python_code)
 
 
 def parce_python_code(message):
+    """Execute given code and send output (stdin, stderr) to user"""
     output = execute_python_code(message.text)
     bot.send_message(message.from_user.id, output)
-
-
-keyboard = types.InlineKeyboardMarkup()
 
 
 bot.polling()
