@@ -18,7 +18,7 @@ HELP_USER = (
 )
 HELP_ADMIN = (
     'Commands:\n'
-    '/begin - send and execute python code\n'
+    '/repl - send and execute python code\n'
     '/users - show all users\n'
     '/adduser - add user\n'
     '/removeuser - remove user\n'
@@ -70,7 +70,7 @@ def send_help_text(message):
     bot.send_message(message.from_user.id, HELP)
 
 
-@bot.message_handler(commands=['begin'])
+@bot.message_handler(commands=['repl'])
 @permission_check
 def prepare_to_parce_python_code(message):
     """Start pseudo REPL and wait for message with code"""
