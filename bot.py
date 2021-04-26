@@ -12,17 +12,10 @@ START_ANONIMUS = (
     "Sorry, you don't have permissions to use this bot.\n"
     "Contact @vilagov if you sure that you need one."
 )
-HELP_USER = (
-    'Commands:\n'
-    '/begin - send and execute python code'
-)
 HELP_ADMIN = (
     'Commands:\n'
     '/repl - send and execute python code\n'
     '/users - show all users\n'
-    '/adduser - add user\n'
-    '/removeuser - remove user\n'
-    '/changeroll - change user role'
 )
 env = dotenv_values('.env')
 
