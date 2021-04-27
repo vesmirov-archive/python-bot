@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 import telebot
 import psycopg2
@@ -12,11 +13,16 @@ START_ANONIMUS = (
     "Sorry, you don't have permissions to use this bot.\n"
     "Contact @vilagov if you sure that you need one."
 )
-HELP_ADMIN = (
+HELP = (
     'Commands:\n'
-    '/repl - send and execute python code\n'
     '/users - show all users\n'
+    '/repl - execute python code\n'
+    '/list - show the list of installed packages\n'
+    '/install - install package\n'
+    '/uninstall - remove package\n'
 )
+MESSAGE_MAX_LEN = 4096
+
 env = dotenv_values('.env')
 
 TOKEN = env.get('TOKEN')
@@ -47,6 +53,16 @@ def permission_check(func):
     return inner
 
 
+def message_manager(message, output):
+    """Send long output in multiple messages"""
+    if len(output) > MESSAGE_MAX_LEN:
+        for part_len in range(0, len(output), MESSAGE_MAX_LEN):
+            part = output[0 + part_len:MESSAGE_MAX_LEN + part_len]
+            bot.send_message(message.from_user.id, part)
+    else:
+        bot.send_message(message.from_user.id, output)
+
+
 @bot.message_handler(commands=['start'])
 @permission_check
 def send_welcome(message):
@@ -54,6 +70,44 @@ def send_welcome(message):
     user_id = message.from_user.id
     name = message.from_user.first_name
     bot.send_message(user_id, START_AUTHENTICATED.format(name))
+
+
+@bot.message_handler(commands=['list'])
+@permission_check
+def package_list(message):
+    """Ask user what pip package to install"""
+    packages = subprocess.check_output(['pip', 'list'])
+    message_manager(message, packages)
+
+
+@bot.message_handler(commands=['install'])
+@permission_check
+def prepare_to_install_package(message):
+    """Ask user what pip package to install"""
+    message = bot.send_message(
+        message.from_user.id, 'Send me the name of package to install')
+    bot.register_next_step_handler(message, install_package)
+
+
+def install_package(message):
+    """Install pip package"""
+    result = subprocess.check_output(['pip', 'install', message.text])
+    message_manager(message, result)
+
+
+@bot.message_handler(commands=['uninstall'])
+@permission_check
+def prepare_to_uninstall_package(message):
+    """Ask user what pip package to uninstall"""
+    message = bot.send_message(
+        message.from_user.id, 'Send me the name of package to uninstall')
+    bot.register_next_step_handler(message, uninstall_package)
+
+
+def uninstall_package(message):
+    """Uninstall pip package"""
+    result = subprocess.check_output(['pip', 'uninstall', message.text, '-y'])
+    message_manager(message, result)
 
 
 @bot.message_handler(commands=['help'])
@@ -74,7 +128,7 @@ def prepare_to_parce_python_code(message):
 def parce_python_code(message):
     """Execute given code and send output (stdin, stderr) to user"""
     output = execute_python_code(message.text)
-    bot.send_message(message.from_user.id, output)
+    message_manager(message, output)
 
 
 @bot.message_handler(commands=['users'])
