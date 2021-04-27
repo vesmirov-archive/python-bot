@@ -40,14 +40,15 @@ def permission_check(func):
             func(message)
         else:
             bot.send_message(message.from_user.id, START_ANONIMUS)
-            bot.send_message(
-                CHAT,
-                'User has just called me.\n'
-                f'first: {message.from_user.first_name}\n'
-                f'last: {message.from_user.last_name}\n'
-                f'username: @{message.from_user.username}\n'
-                f'id: {message.from_user.id}\n'
-            )
+            if env.get('LOGIN_ATTEMPT_ALERT'):
+                bot.send_message(
+                    CHAT,
+                    'User has just called me.\n'
+                    f'first: {message.from_user.first_name}\n'
+                    f'last: {message.from_user.last_name}\n'
+                    f'username: @{message.from_user.username}\n'
+                    f'id: {message.from_user.id}\n'
+                )
     return inner
 
 
