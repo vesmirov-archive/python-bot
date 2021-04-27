@@ -113,7 +113,7 @@ def prepare_to_uninstall_package(message):
 def uninstall_package(message):
     """Uninstall pip package"""
 
-    output = execute_bash_code(f'pip uninstall {message.text}')
+    output = execute_bash_code(f'pip uninstall {message.text} -y')
     message_manager(message, output)
 
 
