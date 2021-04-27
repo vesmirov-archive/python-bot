@@ -3,6 +3,7 @@ import psycopg2
 
 def connect_database(env):
     """Connect to database"""
+
     connect = psycopg2.connect(
         database=env.get('POSTGRES_DB'),
         user=env.get('POSTGRES_USER'),
@@ -16,6 +17,7 @@ def connect_database(env):
 
 def user_has_permissions(cursor, user_id):
     """Check if given id saved in databse"""
+
     cursor.execute("SELECT user_id FROM users")
     rows = cursor.fetchall()
     for row in rows:
@@ -26,6 +28,7 @@ def user_has_permissions(cursor, user_id):
 
 def list_users(cursor):
     """Show list of users"""
+
     cursor.execute("SELECT username, is_admin FROM users")
     rows = cursor.fetchall()
     users = []
