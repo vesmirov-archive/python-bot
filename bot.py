@@ -1,8 +1,6 @@
-import os
 import subprocess
 
 import telebot
-import psycopg2
 from dotenv import dotenv_values
 
 from service import db

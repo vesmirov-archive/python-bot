@@ -9,7 +9,7 @@ def main():
     """Create 'users' table in database and adds user from .env file"""
     env = dotenv_values('.env')
     connect, cursor = connect_database(env)
-    
+
     try:
         cursor.execute(
             'CREATE TABLE users ('
