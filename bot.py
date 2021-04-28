@@ -79,7 +79,7 @@ def send_welcome(message):
 def package_list(message):
     """Ask user what pip package to install"""
 
-    packages = subprocess.check_output(['pip', 'list'])
+    packages = output = execute_bash_code(f'pip list')
     message_manager(message, packages)
 
 
