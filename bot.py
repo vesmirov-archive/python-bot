@@ -79,8 +79,8 @@ def send_welcome(message):
 def package_list(message):
     """Ask user what pip package to install"""
 
-    packages = output = execute_bash_code(f'pip list')
-    message_manager(message, packages)
+    output = execute_bash_code('pip list')
+    message_manager(message, output)
 
 
 @bot.message_handler(commands=['install'])
